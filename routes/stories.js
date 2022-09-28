@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { ensureAuth } = require("../middleware/auth");
+const { findById } = require("../models/Story");
 
 const Story = require("../models/Story");
 
@@ -40,6 +41,26 @@ router.get("/", ensureAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("error/500");
+  }
+});
+
+// @desc Show single story
+// @route GET /stories/:id
+
+router.get("/:id", ensureAuth, async (req, res) => {
+  try {
+    let story = await Story.findById(req.params.id).populate("user").lean();
+
+    if (!story) {
+      return res.render("error/404");
+    } else {
+      res.render("stories/show", {
+        story,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.render("error/404");
   }
 });
 
